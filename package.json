@@ -12,9 +12,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Frontend JS Framework",
-  "files": [
-    "lib/",
-    "readme.md"
-  ]
+  "description": "Frontend JS Basic Framework"
 }
