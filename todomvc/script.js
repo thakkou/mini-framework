@@ -1,6 +1,6 @@
 import { routing, navigate, RouterConstructor } from "mini-framework/lib/router.mjs";
 import { createState } from "mini-framework/lib/state-manager.mjs";
-import { ROOT, createElement } from "mini-framework/lib/vdom.mjs";
+import { ROOT, createElement, renderElement } from "mini-framework/lib/vdom.mjs";
 // navigate not used for now !
 // + need to add handlers
 
@@ -278,7 +278,7 @@ function actionsBar() {
 router.route = {
   path: "/",
   handler: () => {
-    // renderElement(true, ROOT, ...Home());
+    renderElement(true, ROOT, ...Home());
   },
   fakeHandler: () => {},
 };
