@@ -1,6 +1,9 @@
 import { createElement } from "mini-framework/lib/vdom.mjs";
 
-export default function actionsBar(list, listType, data) {
+import { removeCompleted } from "../helpers.js";
+import { data, list, listType } from "../globals.js";
+
+export default function actionsBar() {
   let all = {
     class: "selected",
   };
@@ -82,7 +85,7 @@ export default function actionsBar(list, listType, data) {
           { class: "clear-completed" },
           {
             click: () => {
-              // removeCompleted();
+              removeCompleted();
             },
           },
           "Clear completed",

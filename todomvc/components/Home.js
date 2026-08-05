@@ -3,7 +3,11 @@ import { createElement } from "mini-framework/lib/vdom.mjs";
 import listItem from "./ListItem.js";
 import actionsBar from "./ActionsBar.js";
 
-export default function Home(list, listType, data) { //should get lists from context !!
+import { markAllItemsAsCompleted, addItem } from "../helpers.js";
+import { list } from "../globals.js";
+
+
+export default function Home() { //should get lists from context !!
   let toggleAll = {};
   if (list.getState().list.length != 0) {
     toggleAll = createElement(
@@ -15,7 +19,7 @@ export default function Home(list, listType, data) { //should get lists from con
         { class: "toggle-all", type: "check-box", id: "toggle-all", "data-testid": "toggle-all" },
         {
           click: () => {
-            // markAllItemsAsCompleted();
+            markAllItemsAsCompleted();
           },
         },
         "",
@@ -41,7 +45,7 @@ export default function Home(list, listType, data) { //should get lists from con
               const value = event.target.value.trim();
               if (event.key === "Enter" && value.length >= 2) {
                 event.target.value = "";
-                // addItem(value);
+                addItem(value);
               }
             },
           },
@@ -50,7 +54,7 @@ export default function Home(list, listType, data) { //should get lists from con
         createElement("label", { class: "visually-hidden", for: "todo-input" }, {}, "New Todo Input"),
       ),
     ),
-    createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...listItem(list, listType))),
-    ...actionsBar(list, listType, data),
+    createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...listItem())),
+    ...actionsBar(),
   ];
 }

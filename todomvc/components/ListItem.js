@@ -1,6 +1,10 @@
 import { createElement } from "mini-framework/lib/vdom.mjs";
 
-export default function listItem(list, listType) {
+import { markItemAsCompleted, removeItem, changeItemContent } from "../helpers.js";
+
+import { list, listType } from "../globals.js";
+
+export default function listItem() {
   let result = [];
   for (let i = 0; i < list.getState().list.length; i++) {
     const element = list.getState().list[i];
@@ -23,7 +27,7 @@ export default function listItem(list, listType) {
               { class: "toggle", type: "checkbox", "data-testid": "todo-item-toggle", ...checkBoxState },
               {
                 click: () => {
-                  // markItemAsCompleted(element.id);
+                  markItemAsCompleted(element.id);
                 },
               },
               "",
@@ -54,7 +58,7 @@ export default function listItem(list, listType) {
               { "data-testid": "todo-item-button", class: "destroy" },
               {
                 click: () => {
-                  // removeItem(element.id);
+                  removeItem(element.id);
                 },
               },
               "",
@@ -66,7 +70,7 @@ export default function listItem(list, listType) {
                 keydown: (event) => {
                   const value = event.target.value.trim();
                   if (event.key === "Enter" && value.length >= 2) {
-                    // changeItemContent(element.id, value);
+                    changeItemContent(element.id, value);
                     document.querySelectorAll(".hide-element").forEach((el) => {
                       el.classList.remove("hide-element");
                     });

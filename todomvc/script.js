@@ -1,29 +1,18 @@
 import { routing, navigate, RouterConstructor } from "mini-framework/lib/router.mjs";
-import { createState } from "mini-framework/lib/state-manager.mjs";
-import { ROOT, createElement, renderElement } from "mini-framework/lib/vdom.mjs";
+import { ROOT, createElement, renderElement, patchDOM, createVirtualRootContainer } from "mini-framework/lib/vdom.mjs";
 // navigate not used for now !
 // + need to add handlers
 
+import { data, list, listType } from "./globals.js";
+
 // Components
 // import actionsBar from "./components/ActionsBar.js";
-// import Footer from "./components/Footer.js";
+import Footer from "./components/Footer.js";
 import Home from "./components/Home.js";
 // import listItem from "./components/ListItem.js";
 // import NotFound from "./components/NotFound.js";
 
 const router = RouterConstructor();
-
-const listType = createState({
-  listType: "all",
-});
-
-const list = createState({
-  list: [],
-});
-
-const data = createState({
-  count: list.getState().list.filter((item) => item.listType == "active").length
-});
 
 data.subscribe(() => {
   patchDOM(router);
@@ -35,6 +24,16 @@ list.subscribe(() => {
 
 listType.subscribe(() => {
   patchDOM(router);
+});
+
+document.addEventListener("click", () => {
+  event.stopPropagation();
+  document.querySelectorAll(".hide-element").forEach((el) => {
+    el.classList.remove("hide-element");
+  });
+  document.querySelectorAll(".editing-input").forEach((el) => {
+    el.classList.add("hide-input");
+  });
 });
 
 router.route = {
@@ -78,3 +77,4 @@ router.route = {
 };
 
 routing(router);
+renderElement(false, document.body, ...Footer());
