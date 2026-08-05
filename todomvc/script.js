@@ -13,54 +13,68 @@ import Home from "./components/Home.js";
 
 const router = RouterConstructor();
 
-    const listType = createState({
-    listType: "all",
-    });
+const listType = createState({
+  listType: "all",
+});
 
-    const list = createState({
-    list: [],
-    });
+const list = createState({
+  list: [],
+});
 
-    const data = createState({
-    count: list.getState().list.filter((item) => item.listType == "active").length
-    });
+const data = createState({
+  count: list.getState().list.filter((item) => item.listType == "active").length
+});
 
-    data.subscribe(() => {
-    // patchDOM(router);
-    });
+data.subscribe(() => {
+  patchDOM(router);
+});
 
-    list.subscribe(() => {
-    // patchDOM(router);
-    });
+list.subscribe(() => {
+  patchDOM(router);
+});
 
-    listType.subscribe(() => {
-    // patchDOM(router);
-    });
+listType.subscribe(() => {
+  patchDOM(router);
+});
 
 router.route = {
   path: "/",
   handler: () => {
     renderElement(true, ROOT, ...Home(list, listType, data));
   },
-  fakeHandler: () => {},
+  fakeHandler: () => {
+    return createVirtualRootContainer(ROOT, ...Home(list, listType, data));
+  },
 };
 
 router.route = {
   path: "/active",
-  handler: () => {},
-  fakeHandler: () => {},
+  handler: () => {
+    renderElement(true, ROOT, ...Home(list, listType, data));
+  },
+  fakeHandler: () => {
+    return createVirtualRootContainer(ROOT, ...Home(list, listType, data));
+  },
 };
 
 router.route = {
   path: "/completed",
-  handler: () => {},
-  fakeHandler: () => {},
+  handler: () => {
+    renderElement(true, ROOT, ...Home(list, listType, data));
+  },
+  fakeHandler: () => {
+    return createVirtualRootContainer(ROOT, ...Home(list, listType, data));
+  },
 };
 
 router.route = {
   path: "*",
-  handler: () => {},
-  fakeHandler: () => {},
+  handler: () => {
+    renderElement(true, ROOT, ...Home(list, listType, data));
+  },
+  fakeHandler: () => {
+    return createVirtualRootContainer(ROOT, ...Home(list, listType, data));
+  },
 };
 
 routing(router);
