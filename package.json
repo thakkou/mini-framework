@@ -1,5 +1,5 @@
 {
-  "name": "mini-framework",
+  "name": "@thakkou/mini-framework",
   "type": "module",
   "version": "0.0.1",
   "main": "index.js",
