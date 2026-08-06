@@ -4,7 +4,7 @@ import { markItemAsCompleted, removeItem, changeItemContent } from "../helpers.j
 
 import { list, listType } from "../globals.js";
 
-export default function listItem() {
+export default function ListItem() {
   let result = [];
   for (let i = 0; i < list.getState().list.length; i++) {
     const element = list.getState().list[i];

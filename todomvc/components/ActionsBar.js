@@ -3,7 +3,7 @@ import { createElement } from "mini-framework/lib/vdom.js";
 import { removeCompleted } from "../helpers.js";
 import { data, list, listType } from "../globals.js";
 
-export default function actionsBar() {
+export default function ActionsBar() {
   let all = {
     class: "selected",
   };

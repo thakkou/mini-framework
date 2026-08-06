@@ -1,18 +1,13 @@
-import { routing, navigate, RouterConstructor } from "mini-framework/lib/router.js";
+import Router from "mini-framework/lib/router.js";
 import { ROOT, createElement, renderElement, patchDOM, createVirtualRootContainer } from "mini-framework/lib/vdom.js";
-// navigate not used for now !
-// + need to add handlers
 
 import { data, list, listType } from "./globals.js";
 
 // Components
-// import actionsBar from "./components/ActionsBar.js";
-import Footer from "./components/Footer.js";
 import Home from "./components/Home.js";
-// import listItem from "./components/ListItem.js";
-// import NotFound from "./components/NotFound.js";
+import Footer from "./components/Footer.js";
 
-const router = RouterConstructor();
+const router = Router();
 
 data.subscribe(() => {
   patchDOM(router);
@@ -76,5 +71,5 @@ router.route = {
   },
 };
 
-routing(router);
+router.init();
 renderElement(false, document.body, ...Footer());

@@ -1,11 +1,11 @@
 import { createElement } from "mini-framework/lib/vdom.js";
 
-import listItem from "./ListItem.js";
-import actionsBar from "./ActionsBar.js";
-
 import { markAllItemsAsCompleted, addItem } from "../helpers.js";
 import { list } from "../globals.js";
 
+// Components
+import ListItem from "./ListItem.js";
+import ActionsBar from "./ActionsBar.js";
 
 export default function Home() { //should get lists from context !!
   let toggleAll = {};
@@ -54,7 +54,7 @@ export default function Home() { //should get lists from context !!
         createElement("label", { class: "visually-hidden", for: "todo-input" }, {}, "New Todo Input"),
       ),
     ),
-    createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...listItem())),
-    ...actionsBar(),
+    createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...ListItem())),
+    ...ActionsBar(),
   ];
 }
