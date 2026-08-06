@@ -1,5 +1,5 @@
-import { routing, navigate, RouterConstructor } from "mini-framework/lib/router.mjs";
-import { ROOT, createElement, renderElement, patchDOM, createVirtualRootContainer } from "mini-framework/lib/vdom.mjs";
+import { routing, navigate, RouterConstructor } from "mini-framework/lib/router.js";
+import { ROOT, createElement, renderElement, patchDOM, createVirtualRootContainer } from "mini-framework/lib/vdom.js";
 // navigate not used for now !
 // + need to add handlers
 

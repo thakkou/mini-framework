@@ -1,4 +1,4 @@
-import { createElement } from "mini-framework/lib/vdom.mjs";
+import { createElement } from "mini-framework/lib/vdom.js";
 
 import { removeCompleted } from "../helpers.js";
 import { data, list, listType } from "../globals.js";

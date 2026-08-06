@@ -1,4 +1,4 @@
-import { createElement } from "mini-framework/lib/vdom.mjs";
+import { createElement } from "mini-framework/lib/vdom.js";
 
 import listItem from "./ListItem.js";
 import actionsBar from "./ActionsBar.js";
