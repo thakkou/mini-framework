@@ -1,6 +1,5 @@
 import { data, list } from "./globals.js";
 
-// in framework or in todomvc ?!
 export function generateUniqueId() {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -16,34 +15,24 @@ export function addItem(newItemVal) {
       },
     ],
   });
-  data.setState({ count: countActiveTasks() });
 }
 
 export function removeCompleted() {
   for (let i = 0; i < list.getState().list.length; i++) {
     const element = list.getState().list[i];
-    if (element.listType == "completed") {
+    if (element.listType === "completed") {
       removeItem(element.id);
       i--;
     }
   }
-  data.setState({ count: countActiveTasks() });
 }
 
 export function removeItem(itemId) {
   list.setState({ list: [...list.getState().list.filter((item) => item.id !== itemId)] });
-  data.setState({ count: countActiveTasks() });
 }
 
 export function countActiveTasks() {
-  let result = 0;
-  for (let i = 0; i < list.getState().list.length; i++) {
-    const element = list.getState().list[i];
-    if (element.listType == "active") {
-      result++;
-    }
-  }
-  return result;
+  return list.getState().list.filter((item) => item.listType === "active").length;
 }
 
 export function markItemAsCompleted(itemId) {
@@ -51,7 +40,7 @@ export function markItemAsCompleted(itemId) {
     list: [
       ...list.getState().list.map((item) => {
         if (item.id === itemId) {
-          if (item.listType == "completed") {
+          if (item.listType === "completed") {
             return {
               ...item,
               listType: "active",
@@ -67,7 +56,6 @@ export function markItemAsCompleted(itemId) {
       }),
     ],
   });
-  data.setState({ count: countActiveTasks() });
 }
 
 export function markAllItemsAsCompleted() {
@@ -94,7 +82,6 @@ export function markAllItemsAsCompleted() {
       ],
     });
   }
-  data.setState({ count: countActiveTasks() });
 }
 
 export function changeItemContent(itemId, newContent) {

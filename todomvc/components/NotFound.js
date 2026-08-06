@@ -1,5 +1,8 @@
 import { createElement } from "mini-framework/lib/vdom.js";
 
 export default function NotFound() {
-  return createElement("div", {}, {}, "404");
+  return [
+    createElement("h1", {}, {}, "404"),
+    // + 'Page Not Found' message
+  ];
 }

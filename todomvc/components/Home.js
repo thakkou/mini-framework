@@ -7,7 +7,7 @@ import { list } from "../globals.js";
 import ListItem from "./ListItem.js";
 import ActionsBar from "./ActionsBar.js";
 
-export default function Home() { //should get lists from context !!
+export default function Home() {
   let toggleAll = {};
   if (list.getState().list.length != 0) {
     toggleAll = createElement(
@@ -16,7 +16,7 @@ export default function Home() { //should get lists from context !!
       {},
       createElement(
         "input",
-        { class: "toggle-all", type: "check-box", id: "toggle-all", "data-testid": "toggle-all" },
+        { class: "toggle-all", type: "checkbox", id: "toggle-all", "data-testid": "toggle-all" },
         {
           click: () => {
             markAllItemsAsCompleted();
@@ -43,7 +43,7 @@ export default function Home() { //should get lists from context !!
           {
             keydown: (event) => {
               const value = event.target.value.trim();
-              if (event.key === "Enter" && value.length >= 2) {
+              if (event.key === "Enter" && value.length >= 1) {
                 event.target.value = "";
                 addItem(value);
               }

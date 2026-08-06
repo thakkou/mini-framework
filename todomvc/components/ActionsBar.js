@@ -13,13 +13,13 @@ export default function ActionsBar() {
   let completed = {
     class: "selected",
   };
-  if (listType.getState().listType == "all") {
+  if (listType.getState().listType === "all") {
     active = {};
     completed = {};
-  } else if (listType.getState().listType == "active") {
+  } else if (listType.getState().listType === "active") {
     all = {};
     completed = {};
-  } else if (listType.getState().listType == "completed") {
+  } else if (listType.getState().listType === "completed") {
     active = {};
     all = {};
   }
@@ -29,7 +29,7 @@ export default function ActionsBar() {
         "footer",
         { class: "footer", "data-testid": "footer" },
         {},
-        createElement("span", { class: "todo-count" }, {}, `${data.getState().count} item left!`),
+        createElement("span", { class: "todo-count" }, {}, `${data.getState().count} ${data.getState().count === 1 ? 'item' : 'items'} left!`),
         createElement(
           "ul",
           { class: "filters", "data-testid": "footer-navigation" },

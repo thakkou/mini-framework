@@ -1,4 +1,4 @@
-import { createState } from "mini-framework/lib/state-manager.js";
+import createState from "mini-framework/lib/state-manager.js";
 
 // can add router maybe !
 
@@ -11,5 +11,5 @@ export const list = createState({
 });
 
 export const data = createState({
-  count: list.getState().list.filter((item) => item.listType == "active").length,
+  count: 0, // countActiveTasks(),
 });
