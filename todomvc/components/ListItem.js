@@ -16,7 +16,7 @@ export default function ListItem() {
       result.push(
         createElement(
           "li",
-          { "data-testid": "todo-item", class: element.listType === "completed" ? "completed" : "" },
+          { "data-testid": "todo-item", "data-key": element.id, class: element.listType === "completed" ? "completed" : "" },
           {},
           createElement(
             "div",
