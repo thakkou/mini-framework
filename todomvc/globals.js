@@ -1,4 +1,4 @@
-import createState from "mini-framework/lib/state-manager.js";
+import createState from "mini-framework/src/stateManager.js";
 
 // can add router maybe !
 

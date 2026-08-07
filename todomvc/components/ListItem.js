@@ -1,4 +1,4 @@
-import { createElement } from "mini-framework/lib/vdom.js";
+import { createElement } from "mini-framework/src/vdom/index.js";
 
 import { markItemAsCompleted, removeItem, changeItemContent } from "../helpers.js";
 

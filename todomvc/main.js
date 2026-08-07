@@ -1,10 +1,11 @@
-import Router from "mini-framework/lib/router.js";
-import { ROOT, createElement, renderElement, patchDOM, createVirtualRootContainer } from "mini-framework/lib/vdom.js";
+import Router from "mini-framework/src/router.js";
+import { ROOT, createElement, renderElement, patchDOM } from "mini-framework/src/vdom/index.js";
 
 import { data, list, listType } from "./globals.js";
 import { countActiveTasks } from "./helpers.js";
 
 // Components
+import App from "./components/App.js";
 import Home from "./components/Home.js";
 import Footer from "./components/Footer.js";
 import NotFound from "./components/NotFound.js";
@@ -26,17 +27,7 @@ listType.subscribe(() => {
   patchDOM(router);
 });
 
-
-
-document.addEventListener("click", (event) => { // specified event so it doesnt use global event !
-  event.stopPropagation();
-  document.querySelectorAll(".hide-element").forEach((el) => {
-    el.classList.remove("hide-element");
-  });
-  document.querySelectorAll(".editing-input").forEach((el) => {
-    el.classList.add("hide-input");
-  });
-});
+// --- ROUTES ---------------------------------------
 
 router.addRoute({
   path: "/",
@@ -45,7 +36,7 @@ router.addRoute({
     // renderElement(true, ROOT, ...Home());
   },
   fakeHandler: () => {
-    return createVirtualRootContainer(ROOT, ...Home());
+    return App(...Home());
   },
 });
 
@@ -56,7 +47,7 @@ router.addRoute({
     // renderElement(true, ROOT, ...Home());
   },
   fakeHandler: () => {
-    return createVirtualRootContainer(ROOT, ...Home());
+    return App(...Home());
   },
 });
 
@@ -67,7 +58,7 @@ router.addRoute({
     // renderElement(true, ROOT, ...Home());
   },
   fakeHandler: () => {
-    return createVirtualRootContainer(ROOT, ...Home());
+    return App(...Home());
   },
 });
 
@@ -77,9 +68,24 @@ router.addRoute({
     renderElement(true, ROOT, ...NotFound()); // MAYBE CAN USE PATCH dom !
   },
   fakeHandler: () => {
-    return createVirtualRootContainer(ROOT, ...NotFound());
+    return App(...NotFound());
   },
 });
 
+// --- ROUTES: END -------------------------
+
+document.addEventListener("click", (event) => {
+  event.stopPropagation();
+  if (event.target.closest(".editing-input")) {
+    return;
+  }
+  document.querySelectorAll(".editing-input").forEach((el) => {
+    el.classList.add("hide-input");
+  });
+  document.querySelectorAll(".hide-element").forEach((el) => {
+    el.classList.remove("hide-element");
+  });
+});
+
 router.init();
-renderElement(false, document.body, ...Footer());
+renderElement(false, document.body, Footer());

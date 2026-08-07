@@ -16,15 +16,15 @@ There's also a full [Module Reference](#module-reference) and a walkthrough of t
 
 ## Feature Map
 
-The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single file, **`lib/vdom.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createRealNode`), so splitting them apart would mostly add import overhead without adding clarity.
+The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single file, **`src/vdom.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createRealNode`), so splitting them apart would mostly add import overhead without adding clarity.
 
 | Piece | Lives in | Job |
 |---|---|---|
-| Virtual elements | `lib/vdom.js` | Describe UI as plain objects via `createElement`, instead of calling DOM APIs by hand |
-| First-paint rendering | `lib/vdom.js` | Walk a virtual tree and materialize real DOM nodes (`renderElement`) |
-| Diffing & patching | `lib/vdom.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `extractElement`) |
-| State manager | `lib/state-manager.js` | `getState` / `setState` / `subscribe` — a tiny observable store |
-| Hash router | `lib/router.js` | Map `#/`, `#/active`, etc. to handlers via a `Router()` instance |
+| Virtual elements | `src/vdom.js` | Describe UI as plain objects via `createElement`, instead of calling DOM APIs by hand |
+| First-paint rendering | `src/vdom.js` | Walk a virtual tree and materialize real DOM nodes (`renderElement`) |
+| Diffing & patching | `src/vdom.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `extractElement`) |
+| State manager | `src/stateManager.js` | `getState` / `setState` / `subscribe` — a tiny observable store |
+| Hash router | `src/router.js` | Map `#/`, `#/active`, etc. to handlers via a `Router()` instance |
 
 > [!TIP]
 > **Mental model in one line:** build a description of the UI as data → paint it once → whenever state changes, build a *new* description, diff it against what's on screen, and patch only the delta.
@@ -35,7 +35,7 @@ The bundled **TodoMVC** app (`todomvc/`) is the reference implementation — it 
 
 ##  Building UI
 
-Everything starts with `createElement`, exported from `lib/vdom.js`:
+Everything starts with `createElement`, exported from `src/vdom.js`:
 
 ```js
 createElement(tagName, attributes = {}, events = {}, ...children)
@@ -63,7 +63,7 @@ Calling it doesn't touch the browser at all — it just returns a plain object:
 To get a virtual tree onto the actual page, hand it to `renderElement`:
 
 ```js
-import { createElement, renderElement } from "mini-framework/lib/vdom.js";
+import { createElement, renderElement } from "mini-framework/src/vdom.js";
 
 const root = document.getElementById("root");
 renderElement(true, root, /* one or more virtual elements */);
@@ -156,7 +156,7 @@ createElement("ul", { class: "todo-list" }, {}, ...items.map(toListItem));
 <summary>▶️ Full example — element + attributes + event + nesting, together</summary>
 
 ```js
-import { createElement, renderElement } from "mini-framework/lib/vdom.js";
+import { createElement, renderElement } from "mini-framework/src/vdom.js";
 
 const root = document.getElementById("root");
 
@@ -197,10 +197,10 @@ The core philosophy: **treat the UI as a value first, and only touch the real DO
 
 ### 3️ Reactivity — state containers
 
-`createState(initialState)` (from `lib/state-manager.js`) hands back three functions:
+`createState(initialState)` (from `src/stateManager.js`) hands back three functions:
 
 ```js
-import { createState } from "mini-framework/lib/state-manager.js";
+import { createState } from "mini-framework/src/stateManager.js";
 
 export const list = createState({ list: [] });
 
@@ -217,10 +217,10 @@ list.subscribe((state) => {
 
 ### 4️ Navigation — the hash router
 
-`lib/router.js` exports a factory, `Router()`. Each app creates its own instance:
+`src/router.js` exports a factory, `Router()`. Each app creates its own instance:
 
 ```js
-import Router from "mini-framework/lib/router.js";
+import Router from "mini-framework/src/router.js";
 
 const router = Router();
 
@@ -282,9 +282,9 @@ One shape ties it all together: `{ tagName, attributes, events, children }`, or 
 
 | File | Exports |
 |---|---|
-| `lib/vdom.js` | `ROOT`, `createElement`, `renderElement`, `diffDOM`, `patchDOM`, `extractElement`, `buildVirtualDomFromRoute`, `getNodeByPath`, `createVirtualRootContainer`, `createRealNode`, `setEventListener`, `removeEventListener`, `setDomAttribute`, `removeDomAttribute` |
-| `lib/router.js` | default export `Router` → `{ routes, route (setter), init(), navigate(path) }` |
-| `lib/state-manager.js` | `createState` → `{ getState, setState, subscribe }` |
+| `src/vdom.js` | `ROOT`, `createElement`, `renderElement`, `diffDOM`, `patchDOM`, `extractElement`, `buildVirtualDomFromRoute`, `getNodeByPath`, `createVirtualRootContainer`, `createRealNode`, `setEventListener`, `removeEventListener`, `setDomAttribute`, `removeDomAttribute` |
+| `src/router.js` | default export `Router` → `{ routes, route (setter), init(), navigate(path) }` |
+| `src/stateManager.js` | `createState` → `{ getState, setState, subscribe }` |
 
 ---
 
