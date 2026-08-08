@@ -34,24 +34,18 @@ export default function Home() {
       {},
       createElement("h1", {}, {}, "todos"),
       createElement(
-        "div",
-        { class: "input-container" },
-        {},
-        createElement(
-          "input",
-          { class: "new-todo", id: "todo-input", type: "text", "data-testid": "text-input", placeholder: "What needs to be done?", value: "" },
-          {
-            keydown: (event) => {
-              const value = event.target.value.trim();
-              if (event.key === "Enter" && value.length >= 1) {
-                event.target.value = "";
-                addItem(value);
-              }
-            },
+        "input",
+        { class: "new-todo", "data-testid": "text-input", "aria-label": "New Todo Input", placeholder: "What needs to be done?", type: "text" },
+        {
+          keydown: (event) => {
+            const value = event.target.value.trim();
+            if (event.key === "Enter" && value.length >= 1) {
+              event.target.value = "";
+              addItem(value);
+            }
           },
-          "",
-        ),
-        createElement("label", { class: "visually-hidden", for: "todo-input" }, {}, "New Todo Input"),
+        },
+        "",
       ),
     ),
     createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...ListItem())),

@@ -16,13 +16,13 @@ There's also a full [Module Reference](#module-reference) and a walkthrough of t
 
 ## Feature Map
 
-The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single file, **`src/vdom.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createRealNode`), so splitting them apart would mostly add import overhead without adding clarity.
+The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single folder, **`src/vdom/*.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createRealNode`), so splitting them apart would mostly add import overhead without adding clarity.
 
 | Piece | Lives in | Job |
 |---|---|---|
-| Virtual elements | `src/vdom.js` | Describe UI as plain objects via `createElement`, instead of calling DOM APIs by hand |
-| First-paint rendering | `src/vdom.js` | Walk a virtual tree and materialize real DOM nodes (`renderElement`) |
-| Diffing & patching | `src/vdom.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `extractElement`) |
+| Virtual elements | `src/vdom/element.js` | Describe UI as plain objects via `createElement`, instead of calling DOM APIs by hand |
+| First-paint rendering | `src/vdom/element.js` | Walk a virtual tree and materialize real DOM nodes (`renderElement`) |
+| Diffing & patching | `src/vdom/differ.js` `src/vdom/patcher.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `extractElement`) |
 | State manager | `src/stateManager.js` | `getState` / `setState` / `subscribe` — a tiny observable store |
 | Hash router | `src/router.js` | Map `#/`, `#/active`, etc. to handlers via a `Router()` instance |
 
@@ -301,8 +301,8 @@ The demo lives entirely under `todomvc/` and shows the three modules above wired
 | `components/ActionsBar.js` | Item counter, the All / Active / Completed filter links, "Clear completed" |
 | `components/Footer.js` | Static footer, rendered once straight into `document.body`, outside the routed `#root` |
 | `components/NotFound.js` | Minimal `404` view, ready to plug into a route's `handler` / `fakeHandler` |
-| `script.js` | Glue code: creates the `Router`, subscribes every state container to `patchDOM(router)`, registers `/`, `/active`, `/completed`, `*`, then calls `router.init()` |
-| `index.html` | Loads `script.js` as a module and maps the `mini-framework/` bare specifier to `/node_modules/@thakkou/mini-framework/` via an import map |
+| `main.js` | Glue code: creates the `Router`, subscribes every state container to `patchDOM(router)`, registers `/`, `/active`, `/completed`, `*`, then calls `router.init()` |
+| `index.html` | Loads `main.js` as a module and maps the `mini-framework/` bare specifier to `/node_modules/@thakkou/mini-framework/` via an import map |
 
 ###  Running it locally
 
