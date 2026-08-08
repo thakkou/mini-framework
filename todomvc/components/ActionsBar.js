@@ -80,16 +80,18 @@ export default function ActionsBar() {
             ),
           ),
         ),
-        createElement(
-          "button",
-          { class: "clear-completed" },
-          {
-            click: () => {
-              removeCompleted();
+        ...(list.getState().list.length - data.getState().count > 0 ? [
+          createElement(
+            "button",
+            { class: "clear-completed" },
+            {
+              click: () => {
+                removeCompleted();
+              },
             },
-          },
-          "Clear completed",
-        ),
+            "Clear completed",
+          )
+        ] : [])
       ),
     ];
   } else {
