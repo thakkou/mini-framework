@@ -1,16 +1,13 @@
-import Router from "mini-framework/src/router.js";
 import { ROOT, createElement, renderElement, patchDOM } from "mini-framework/src/vdom/index.js";
 
-import { data, list, listType } from "./globals.js";
+import { router, data, list, listType } from "./globals.js";
 import { countActiveTasks } from "./helpers.js";
 
 // Components
-import App from "./components/App.js";
-import Home from "./components/Home.js";
-import Footer from "./components/Footer.js";
-import NotFound from "./components/NotFound.js";
-
-const router = Router();
+import App from "../components/App.js";
+import Home from "../components/Home.js";
+import Footer from "../components/Footer.js";
+import NotFound from "../components/NotFound.js";
 
 data.subscribe(() => {
   patchDOM(router);

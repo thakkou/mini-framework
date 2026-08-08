@@ -1,8 +1,7 @@
 import { createElement } from "mini-framework/src/vdom/index.js";
 
-import { markItemAsCompleted, removeItem, changeItemContent } from "../helpers.js";
-
-import { list, listType } from "../globals.js";
+import { list, listType } from "../src/globals.js";
+import { markItemAsCompleted, removeItem, changeItemContent } from "../src/helpers.js";
 
 export default function ListItem() {
   let result = [];

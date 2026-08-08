@@ -1,7 +1,7 @@
 import { createElement } from "mini-framework/src/vdom/index.js";
 
-import { removeCompleted } from "../helpers.js";
-import { data, list, listType } from "../globals.js";
+import { removeCompleted } from "../src/helpers.js";
+import { router, data, list, listType } from "../src/globals.js";
 
 export default function ActionsBar() {
   let all = {
@@ -42,9 +42,10 @@ export default function ActionsBar() {
               "a",
               { ...all, href: "#/" },
               {
-                click: () => {
-                  listType.setState({ listType: "all" });
-                },
+                // click: () => {
+                //   listType.setState({ listType: "all" }); // or
+                //   router.navigate('/')
+                // },
               },
               "All",
             ),
@@ -57,9 +58,10 @@ export default function ActionsBar() {
               "a",
               { ...active, href: "#/active" },
               {
-                click: () => {
-                  listType.setState({ listType: "active" });
-                },
+                // click: () => {
+                //   listType.setState({ listType: "active" }); // or
+                //   router.navigate('/active')
+                // },
               },
               "Active",
             ),
@@ -72,9 +74,10 @@ export default function ActionsBar() {
               "a",
               { ...completed, href: "#/completed" },
               {
-                click: () => {
-                  listType.setState({ listType: "completed" });
-                },
+                // click: () => {
+                //   listType.setState({ listType: "completed" }); // or
+                //   router.navigate('/completed')
+                // },
               },
               "Completed",
             ),

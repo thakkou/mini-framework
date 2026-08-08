@@ -1,7 +1,7 @@
 import { createElement } from "mini-framework/src/vdom/index.js";
 
-import { markAllItemsAsCompleted, addItem } from "../helpers.js";
-import { list } from "../globals.js";
+import { markAllItemsAsCompleted, addItem } from "../src/helpers.js";
+import { list } from "../src/globals.js";
 
 // Components
 import ListItem from "./ListItem.js";
