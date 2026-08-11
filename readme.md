@@ -16,13 +16,13 @@ There's also a full [Module Reference](#module-reference) and a walkthrough of t
 
 ## Feature Map
 
-The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single folder, **`src/vdom/*.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createRealNode`), so splitting them apart would mostly add import overhead without adding clarity.
+The whole DOM-facing engine — creating elements, rendering them, diffing, and patching — sits in a single folder, **`src/vdom/*.js`**. That's a deliberate choice: those pieces all operate on the same virtual-node shape and share low-level helpers (`setDomAttribute`, `setEventListener`, `createActualNode`), so splitting them apart would mostly add import overhead without adding clarity.
 
 | Piece | Lives in | Job |
 |---|---|---|
 | Virtual elements | `src/vdom/element.js` | Describe UI as plain objects via `createElement`, instead of calling DOM APIs by hand |
 | First-paint rendering | `src/vdom/element.js` | Walk a virtual tree and materialize real DOM nodes (`renderElement`) |
-| Diffing & patching | `src/vdom/differ.js` `src/vdom/patcher.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `extractElement`) |
+| Diffing & patching | `src/vdom/differ.js` `src/vdom/patcher.js` | Compare the live DOM against a freshly-built tree and touch only what changed (`diffDOM`, `patchDOM`, `parseElement`) |
 | State manager | `src/stateManager.js` | `getState` / `setState` / `subscribe` — a tiny observable store |
 | Hash router | `src/router.js` | Map `#/`, `#/active`, etc. to handlers via a `Router()` instance |
 
@@ -226,8 +226,8 @@ const router = Router();
 
 router.route = {
   path: "/active",
-  handler: () => { /* full renderElement(true, ROOT, ...) redraw */ },
-  fakeHandler: () => { /* virtual tree describing this route, for diffing */ },
+  handler: () => { /* full renderElement(true, ROOT_NODE, ...) redraw */ },
+  component: () => { /* virtual tree describing this route, for diffing */ },
 };
 
 router.init();               // renders the current route, then listens for hashchange
@@ -241,10 +241,10 @@ router.navigate("/active");  // sets location.hash programmatically
 
 Rather than re-rendering everything on every state change, `patchDOM(router)` does this:
 
-1. **`extractElement(ROOT)`** — reads the *current* DOM back into a virtual tree. (Event listeners can't be recovered this way, so extracted nodes always come back with an empty `events` object.)
-2. **`buildVirtualDomFromRoute(router)`** — asks the active route's `fakeHandler` for the *target* tree.
+1. **`parseElement(parent)`** — reads the *current* DOM back into a virtual tree. (Event listeners can't be recovered this way, so extracted nodes always come back with an empty `events` object.)
+2. **`routeToVDom(router)`** — asks the active route's `component` for the *target* tree.
 3. **`diffDOM(oldTree, newTree, path)`** — recursively walks both trees, emitting a flat list of changes, each tagged with a positional path like `root.children[0].children[2]`.
-4. Each change is applied via **`getNodeByPath`** + the matching low-level helper — `setDomAttribute`, `removeDomAttribute`, `setEventListener`, `removeEventListener`, or a DOM insert/remove/replace built with `createRealNode`.
+4. Each change is applied via **`getNodeFromPath`** + the matching low-level helper — `setDomAttribute`, `removeDomAttribute`, `setEventListener`, `removeEventListener`, or a DOM insert/remove/replace built with `createActualNode`.
 
 Diff/patch types in play: `TEXT`, `ATTRIBUTE`, `REMOVE_ATTRIBUTE`, `EVENT`, `REMOVE_EVENT`, `REPLACE`, `ADD`, `REMOVE`.
 
@@ -259,7 +259,7 @@ flowchart LR
   B --> C[renderElement — first paint]
   D[setState] --> E[subscriber fires]
   E --> F[patchDOM]
-  F --> G[extractElement + route fakeHandler tree]
+  F --> G[parseElement + route component tree]
   G --> H[diffDOM]
   H --> I[Patches applied to real DOM]
   J[hashchange event] --> K[router.init listener]
@@ -272,7 +272,7 @@ flowchart LR
 - `renderElement` → paint (first load, or a route's full `handler`)
 - `createState` + `subscribe` → react
 - `Router` + `.route` + `.init()` → navigate
-- `diffDOM` + `patchDOM` → reconcile efficiently, driven by each route's `fakeHandler`
+- `diffDOM` + `patchDOM` → reconcile efficiently, driven by each route's `component`
 
 One shape ties it all together: `{ tagName, attributes, events, children }`, or `{ tagName: "text", content }` for text.
 
@@ -282,7 +282,7 @@ One shape ties it all together: `{ tagName, attributes, events, children }`, or 
 
 | File | Exports |
 |---|---|
-| `src/vdom.js` | `ROOT`, `createElement`, `renderElement`, `diffDOM`, `patchDOM`, `extractElement`, `buildVirtualDomFromRoute`, `getNodeByPath`, `createVirtualRootContainer`, `createRealNode`, `setEventListener`, `removeEventListener`, `setDomAttribute`, `removeDomAttribute` |
+| `src/vdom.js` | `ROOT_NODE`, `createElement`, `renderElement`, `diffDOM`, `patchDOM`, `parseElement`, `routeToVDom`, `getNodeFromPath`, `createVirtualRootContainer`, `createActualNode`, `setEventListener`, `removeEventListener`, `setDomAttribute`, `removeDomAttribute` |
 | `src/router.js` | default export `Router` → `{ routes, route (setter), init(), navigate(path) }` |
 | `src/stateManager.js` | `createState` → `{ getState, setState, subscribe }` |
 
@@ -300,7 +300,7 @@ The demo lives entirely under `todomvc/` and shows the three modules above wired
 | `components/ListItem.js` | Renders one `<li>` per todo matching the active filter; wires toggle / edit / delete |
 | `components/ActionsBar.js` | Item counter, the All / Active / Completed filter links, "Clear completed" |
 | `components/Footer.js` | Static footer, rendered once straight into `document.body`, outside the routed `#root` |
-| `components/NotFound.js` | Minimal `404` view, ready to plug into a route's `handler` / `fakeHandler` |
+| `components/NotFound.js` | Minimal `404` view, ready to plug into a route's `handler` / `component` |
 | `main.js` | Glue code: creates the `Router`, subscribes every state container to `patchDOM(router)`, registers `/`, `/active`, `/completed`, `*`, then calls `router.init()` |
 | `index.html` | Loads `main.js` as a module and maps the `mini-framework/` bare specifier to `/node_modules/@thakkou/mini-framework/` via an import map |
 

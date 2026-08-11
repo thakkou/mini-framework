@@ -1,45 +1,36 @@
-export function setEventListener(element, eventType, handler) {
-    // Internal event registry
-    if (!element.__fwEventListeners) {
-        element.__fwEventListeners = {};
-    }
+export function setEventListener(elem, eventType, handler) {
+    // __mfEventListeners__: internal event registry
+    if (!elem.__mfEventListeners__)
+        elem.__mfEventListeners__ = {};
 
-    // Remove old listener before adding new one
-    removeEventListener(element, eventType);
-
-    element.__fwEventListeners[eventType] = handler;
-    element.addEventListener(eventType, handler);
+    removeEventListener(elem, eventType);
+    elem.__mfEventListeners__[eventType] = handler;
+    elem.addEventListener(eventType, handler);
 }
 
-export function removeEventListener(element, eventType) {
-    const eventListeners = element.__fwEventListeners;
-    const oldHandler = eventListeners?.[eventType];
-
-    if (oldHandler) {
-        element.removeEventListener(eventType, oldHandler);
+export function removeEventListener(elem, eventType) {
+    const eventListeners = elem.__mfEventListeners__;
+    const prevHandler = eventListeners?.[eventType];
+    if (prevHandler) {
+        elem.removeEventListener(eventType, prevHandler);
         delete eventListeners[eventType];
     }
 }
 
-export function setDomAttribute(element, key, value) {
-    // Special handling for checkbox/radio state
+export function setDomAttribute(elem, key, value) {
+    // checkbox/radio state special handling
     if (key === "checked") {
-        element.checked = Boolean(value);
-
-        if (value) {
-            element.setAttribute(key, "");
-        } else {
-            element.removeAttribute(key);
-        }
-        return;
+        elem.checked = Boolean(value);
+        value ?
+            elem.setAttribute(key, "") :
+            elem.removeAttribute(key);
+    } else {
+        elem.setAttribute(key, value);
     }
-    element.setAttribute(key, value);
 }
 
-export function removeDomAttribute(element, key) {
-    // Reset boolean checked state
-    if (key === "checked") {
-        element.checked = false;
-    }
-    element.removeAttribute(key);
+export function removeDomAttribute(elem, key) {
+    // reset checked state
+    if (key === "checked") elem.checked = false;
+    elem.removeAttribute(key);
 }

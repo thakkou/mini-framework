@@ -4,29 +4,24 @@ import { markAllItemsAsCompleted, addItem } from "../src/helpers.js";
 import { list } from "../src/globals.js";
 
 // Components
-import ListItem from "./ListItem.js";
+import ItemList from "./ItemList.js";
 import ActionsBar from "./ActionsBar.js";
 
 export default function Home() {
-  let toggleAll = {};
-  if (list.getState().list.length != 0) {
-    toggleAll = createElement(
+  let toggleAll = (list.getState().list.length > 0) ?
+    createElement(
       "div",
       { class: "toggle-all-container" },
       {},
       createElement(
         "input",
         { class: "toggle-all", type: "checkbox", id: "toggle-all", "data-testid": "toggle-all" },
-        {
-          click: () => {
-            markAllItemsAsCompleted();
-          },
-        },
+        { click: markAllItemsAsCompleted },
         "",
       ),
       createElement("label", { class: "toggle-all-label", for: "toggle-all" }),
-    );
-  }
+    ) : {};
+
   return [
     createElement(
       "header",
@@ -48,7 +43,18 @@ export default function Home() {
         "",
       ),
     ),
-    createElement("main", { class: "main", "data-testid": "main" }, {}, toggleAll, createElement("ul", { class: "todo-list", "data-testid": "todo-list" }, {}, ...ListItem())),
+    createElement(
+      "main",
+      { class: "main", "data-testid": "main" },
+      {},
+      toggleAll,
+      createElement(
+        "ul",
+        { class: "todo-list", "data-testid": "todo-list" }, 
+        {},
+        ...ItemList()
+      )
+    ),
     ...ActionsBar(),
   ];
 }

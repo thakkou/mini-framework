@@ -1,7 +1,7 @@
-import { ROOT, createElement, renderElement, patchDOM } from "mini-framework/src/vdom/index.js";
+import { ROOT_NODE, createElement, renderElement, patchDOM } from "mini-framework/src/vdom/index.js";
 
 import { router, data, list, listType } from "./globals.js";
-import { countActiveTasks } from "./helpers.js";
+import { countActiveTasks, changeItemContent, hideAllInputs, showAllItems, getActiveInput, getHiddenElement } from "./helpers.js";
 
 // Components
 import App from "../components/App.js";
@@ -30,9 +30,8 @@ router.addRoute({
   path: "/",
   handler: () => {
     listType.setState({ listType: "all" });
-    // renderElement(true, ROOT, ...Home());
   },
-  fakeHandler: () => {
+  component: () => {
     return App(...Home());
   },
 });
@@ -41,9 +40,8 @@ router.addRoute({
   path: "/active",
   handler: () => {
     listType.setState({ listType: "active" });
-    // renderElement(true, ROOT, ...Home());
   },
-  fakeHandler: () => {
+  component: () => {
     return App(...Home());
   },
 });
@@ -52,9 +50,8 @@ router.addRoute({
   path: "/completed",
   handler: () => {
     listType.setState({ listType: "completed" });
-    // renderElement(true, ROOT, ...Home());
   },
-  fakeHandler: () => {
+  component: () => {
     return App(...Home());
   },
 });
@@ -62,10 +59,10 @@ router.addRoute({
 router.addRoute({
   path: "*",
   handler: () => {
-    renderElement(true, ROOT, ...NotFound()); // MAYBE CAN USE PATCH dom !
+    renderElement(true, ROOT_NODE, ...Home()); // MAYBE CAN USE PATCH dom ! + NotFound() not used for now
   },
-  fakeHandler: () => {
-    return App(...NotFound());
+  component: () => {
+    return App(...Home());
   },
 });
 
@@ -76,12 +73,12 @@ document.addEventListener("click", (event) => {
   if (event.target.closest(".editing-input")) {
     return;
   }
-  document.querySelectorAll(".editing-input").forEach((el) => {
-    el.classList.add("hide-input");
-  });
-  document.querySelectorAll(".hide-element").forEach((el) => {
-    el.classList.remove("hide-element");
-  });
+  const value = getActiveInput()?.value.trim() || '';
+  if (value.length >= 1) {
+    changeItemContent(getHiddenElement()?.getAttribute('data-key'), value);
+    hideAllInputs();
+    showAllItems();
+  }
 });
 
 router.init();

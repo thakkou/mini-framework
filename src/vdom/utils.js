@@ -1,62 +1,57 @@
 import { setDomAttribute, setEventListener } from "./mutators.js";
 
-export const ROOT = document.getElementById("root");
+export const ROOT_NODE = document.getElementById("root");
 
-export function buildVirtualDomFromRoute(router) {
-    const currentPath = location.hash.slice(1) || "/";
-    const matchedRoute = router.routes[currentPath];
-
-    return router.routes[matchedRoute ? currentPath : "*"].fake();
+export function routeToVDom(router) {
+    const current = location.hash.slice(1) || "/";
+    const matched = router.routes[current];
+    return router.routes[matched ? current : "*"].fake();
 }
 
-export function getNodeByPath(root, path) {
-    if (path === "root") {
-        return root;
-    }
+export function getNodeFromPath(root, path) {
+    if (path === "root") return root;
 
-    // Extract all child indexes from path
-    const indexes = [...path.matchAll(/children\[(\d+)\]/g)].map((m) => Number(m[1]));
+    // child indexes
+    const indexes = [...path.matchAll(/children\[(\d+)\]/g)]
+        .map((m) => Number(m[1]));
 
     let current = root;
     for (const index of indexes) {
-        if (!current || !current.childNodes[index]) {
-            return null;
-        }
+        if (!current || !current.childNodes[index]) return null;
         current = current.childNodes[index];
     }
     return current;
 }
 
-export function createRealNode(vNode) {
-    if (!vNode) return null;
+export function createActualNode(vnode) {
+    if (!vnode) return null;
 
-    if (vNode.tagName === "text") {
-        return document.createTextNode(vNode.content);
-    }
+    if (vnode.tagName === "text")
+        return document.createTextNode(vnode.content);
 
-    const element = document.createElement(vNode.tagName);
+    const element = document.createElement(vnode.tagName);
 
-    // Apply attributes and inline events
-    for (const [key, value] of Object.entries(vNode.attributes || {})) {
-        if (key.startsWith("on") && typeof value === "function") {
-            setEventListener(element, key.slice(2).toLowerCase(), value);
-        } else {
+    // attributes and special events
+    for (const [key, value] of Object.entries(vnode.attributes || {})) {
+        (key.startsWith("on") && typeof value === "function") ?
+            setEventListener(element, key.slice(2).toLowerCase(), value) :
             setDomAttribute(element, key, value);
-        }
     }
 
-    // Apply explicit event listeners
-    for (const [eventType, handler] of Object.entries(vNode.events || {})) {
+    // explicit event listeners
+    for (const [eventType, handler] of Object.entries(vnode.events || {})) {
         setEventListener(element, eventType, handler);
     }
 
-    // Recursively render children
-    for (const child of vNode.children || []) {
-        const childNode = createRealNode(child);
-        if (childNode) {
-            element.appendChild(childNode);
-        }
+    // render children recursively
+    for (const child of vnode.children || []) {
+        const childNode = createActualNode(child);
+        if (childNode) element.appendChild(childNode);
     }
 
     return element;
+}
+
+export function getKey(node) {
+    return node?.attributes?.["data-key"];
 }

@@ -1,27 +1,26 @@
 import { setDomAttribute, setEventListener } from "./mutators.js";
 
-export function extractElement(domElement) {
-    if (domElement.nodeType === Node.TEXT_NODE) {
-        return {
-            tagName: "text",
-            content: domElement.textContent,
-        };
-    }
+export function parseElement(domEl) {
+    if (domEl.nodeType === Node.TEXT_NODE) return {
+        tagName: "text",
+        content: domEl.textContent,
+    };
 
     const attributes = {};
-    for (const attr of domElement.attributes) {
+    for (const attr of domEl.attributes) {
         attributes[attr.name] = attr.value;
     }
 
     const children = [];
-    for (const child of domElement.childNodes) {
-        children.push(extractElement(child));
+    for (const child of domEl.childNodes) {
+        children.push(parseElement(child));
     }
 
     return {
-        tagName: domElement.tagName.toLowerCase(),
+        // Event listeners cannot be reconstructed from the DOM
+        tagName: domEl.tagName.toLowerCase(),
         attributes,
-        events: {}, // Event listeners cannot be reconstructed from the DOM
+        events: {},
         children,
     };
 }
@@ -31,65 +30,50 @@ export function createElement(tagName, attributes = {}, events = {}, ...children
         tagName,
         attributes,
         events,
-
-        children: children.flat().map((child) => {
-            if (typeof child === "string" || typeof child === "number") {
-                return {
-                    tagName: "text",
-                    content: String(child),
-                };
-            }
-
-            return child;
-        }),
+        // .flat() only flattens one level by default.
+        children: children.flat().map(child => {
+            return (typeof child === "string" || typeof child === "number") ?
+                { tagName: "text", content: String(child) } : child;
+        })
     };
 }
 
 export function renderElement(clear, parent, ...elements) {
-    // Clear existing content if requested
-    if (clear) {
-        parent.innerHTML = "";
-    }
+    if (clear) parent.innerHTML = "";
 
-    elements.forEach((element) => {
-        // Ignore invalid render values
-        if (element == null || element === false) return;
+    elements.forEach(el => {
+        if (el == null || el === false) return;
 
-        // Render text nodes
-        if (element.tagName === "text") {
-            const textNode = document.createTextNode(element.content);
+        if (el.tagName === "text") {
+            const textNode = document.createTextNode(el.content);
             parent.appendChild(textNode);
             return;
         }
 
-        // Create DOM element
-        const domElement = document.createElement(element.tagName);
+        const domEl = document.createElement(el.tagName);
 
-        // Apply attributes
-        if (element.attributes) {
-            for (const [key, value] of Object.entries(element.attributes)) {
+        if (el.attributes) {
+            for (const [key, value] of Object.entries(el.attributes)) {
                 if (key.startsWith("on") && typeof value === "function") {
                     const eventType = key.slice(2).toLowerCase();
-                    setEventListener(domElement, eventType, value);
+                    setEventListener(domEl, eventType, value);
                 } else {
-                    setDomAttribute(domElement, key, value);
+                    setDomAttribute(domEl, key, value);
                 }
             }
         }
 
-        // Attach events
-        if (element.events) {
-            for (const [eventType, eventHandler] of Object.entries(element.events)) {
-                setEventListener(domElement, eventType, eventHandler);
+        if (el.events) {
+            for (const [eventType, eventHandler] of Object.entries(el.events)) {
+                setEventListener(domEl, eventType, eventHandler);
             }
         }
 
-        // Render children recursively
-        if (element.children?.length > 0) {
-            renderElement(false, domElement, ...element.children);
+        // renders children recursively
+        if (el.children?.length > 0) {
+            renderElement(false, domEl, ...el.children);
         }
 
-        // Append final element to parent
-        parent.appendChild(domElement);
+        parent.appendChild(domEl);
     });
 }

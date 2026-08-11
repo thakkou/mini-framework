@@ -1,109 +1,110 @@
-export default function diffDOM(oldNode, newNode, path = "root") {
-  // Stores all detected changes
+import { getKey } from './utils.js';
+
+export default function diffDOM(prevNode, nextNode, path = "root") {
   const diffs = [];
 
-  // NODE REMOVED: If no new node specified, the old node should be removed.
-  if (!newNode) {
+  // NODE REMOVED
+  if (!nextNode) {
     diffs.push({
       type: "REMOVE",
       path,
-      oldValue: oldNode,
+      prevValue: prevNode,
     });
     return diffs;
   }
 
-  // NODE ADDED: If no old node specified, the new node should be inserted.
-  if (!oldNode) {
+  // NODE ADDED
+  if (!prevNode) {
     diffs.push({
       type: "ADD",
       path,
-      newValue: newNode,
+      nextValue: nextNode,
     });
     return diffs;
   }
 
-  // NODE REPLACEMENT: Replace the entire node if the tag names differ.
-  if (oldNode.tagName !== newNode.tagName) {
+  // NODE REPLACED
+  if (prevNode.tagName !== nextNode.tagName) {
     diffs.push({
       type: "REPLACE",
       path,
-      oldValue: oldNode,
-      newValue: newNode,
+      prevValue: prevNode,
+      nextValue: nextNode,
     });
     return diffs;
   }
 
-  // TEXT NODE COMPARISON: Only compare text content for text nodes.
-  if (oldNode.tagName === "text") {
-    if (oldNode.content !== newNode.content) {
+  // TEXT NODE COMPARISON
+  if (prevNode.tagName === "text") {
+    if (prevNode.content !== nextNode.content) {
       diffs.push({
         type: "TEXT",
         path,
-        oldValue: oldNode.content,
-        newValue: newNode.content,
+        prevValue: prevNode.content,
+        nextValue: nextNode.content,
       });
     }
     return diffs;
   }
 
-  // Extract attributes safely
-  const oldAttrs = oldNode.attributes || {};
-  const newAttrs = newNode.attributes || {};
+  // ATTRIBUTES EXTRACTION
+  const oldAttrs = prevNode.attributes || {};
+  const newAttrs = nextNode.attributes || {};
 
-  // CHANGED OR ADDED ATTRIBUTES
+  // ATTRIBUTES ADDED OR CHANGED
   for (const key in newAttrs) {
-    // EVENT HANDLER DETECTION: Example: onClick -> click
+    // SPECIAL EVENT HANDLER: onEvent -> event
     if (key.startsWith("on") && typeof newAttrs[key] === "function") {
       diffs.push({
         type: "EVENT",
         path,
         eventType: key.slice(2).toLowerCase(),
-        newValue: newAttrs[key],
+        nextValue: newAttrs[key],
       });
       continue;
     }
 
-    // Attribute value changed
+    // ATTRIBUTE VALUE CHANGED
     if (oldAttrs[key] !== newAttrs[key]) {
       diffs.push({
         type: "ATTRIBUTE",
         path,
         attribute: key,
-        oldValue: oldAttrs[key],
-        newValue: newAttrs[key],
+        prevValue: oldAttrs[key],
+        nextValue: newAttrs[key],
       });
     }
   }
 
-  // REMOVED ATTRIBUTES
+  // ATTRIBUTES REMOVED
   for (const key in oldAttrs) {
     if (!(key in newAttrs)) {
       diffs.push({
         type: "REMOVE_ATTRIBUTE",
         path,
         attribute: key,
-        oldValue: oldAttrs[key],
+        prevValue: oldAttrs[key],
       });
     }
   }
 
-  // Extract event maps safely
-  const oldEvents = oldNode.events || {};
-  const newEvents = newNode.events || {};
+  // EVENTS EXTRACTION
+  const oldEvents = prevNode.events || {};
+  const newEvents = nextNode.events || {};
 
-  // CHANGED OR ADDED EVENTS
+  // EVENTS ADDED OR CHANGED
   for (const eventType in newEvents) {
     if (oldEvents[eventType] !== newEvents[eventType]) {
       diffs.push({
         type: "EVENT",
         path,
         eventType,
-        newValue: newEvents[eventType],
+        nextValue: newEvents[eventType],
       });
     }
   }
 
-  // REMOVED EVENTS
+  // EVENTS REMOVED
   for (const eventType in oldEvents) {
     if (!(eventType in newEvents)) {
       diffs.push({
@@ -114,18 +115,17 @@ export default function diffDOM(oldNode, newNode, path = "root") {
     }
   }
 
-  // CHILDREN COMPARISON: Recursively diff all children nodes.
-  const oldChildren = oldNode.children || [];
-  const newChildren = newNode.children || [];
+  // CHILDREN EXTRACTION
+  const oldChildren = prevNode.children || [];
+  const newChildren = nextNode.children || [];
 
-  const getKey = (node) => node?.attributes?.["data-key"];
-
+  // CHECK IF KEYED ELEMENTS
   const isKeyed =
     oldChildren.some((child) => getKey(child) !== undefined) ||
     newChildren.some((child) => getKey(child) !== undefined);
 
   if (!isKeyed) {
-    // No keys in play at this level: fall back to the plain positional diff.
+    // fallback to the plain positional diff.
     const max = Math.max(oldChildren.length, newChildren.length);
     for (let i = 0; i < max; i++) {
       diffs.push(...diffDOM(oldChildren[i], newChildren[i], `${path}.children[${i}]`));
@@ -153,7 +153,7 @@ export default function diffDOM(oldNode, newNode, path = "root") {
     diffs.push({
       type: "REMOVE",
       path: `${path}.children[${index}]`,
-      oldValue: child,
+      prevValue: child,
     });
   }
 
@@ -167,7 +167,11 @@ export default function diffDOM(oldNode, newNode, path = "root") {
     if (match) {
       diffs.push(...diffDOM(match.child, newChild, childPath));
     } else {
-      diffs.push({ type: "ADD", path: childPath, newValue: newChild });
+      diffs.push({
+        type: "ADD",
+        path: childPath,
+        nextValue: newChild
+      });
     }
   });
 

@@ -99,3 +99,28 @@ export function changeItemContent(itemId, newContent) {
     ],
   });
 }
+
+// ******************************************************************
+
+export function showAllItems() {
+  document.querySelectorAll(".hide-element").forEach((el) => {
+    el.classList.remove("hide-element");
+  });
+}
+
+export function hideAllInputs() {
+  document.querySelectorAll(".editing-input").forEach((el) => {
+    el.classList.add("hide-input");
+  });
+}
+
+
+export function getActiveInput() {
+  return [...document.querySelectorAll(".editing-input")]
+    .filter(el => ![...el.classList].includes('hide-input'))[0];
+}
+
+export function getHiddenElement() {
+  return [...document.querySelectorAll("li")]
+    .filter(el => el.getAttribute('data-testid') === "todo-item" && [...el.firstChild.querySelector('label').classList].includes('hide-element'))[0];
+}

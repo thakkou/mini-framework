@@ -1,75 +1,65 @@
 import diffDOM from "./differ.js";
-import { extractElement } from "./element.js";
+import { parseElement } from "./element.js";
 import { setDomAttribute, setEventListener, removeDomAttribute, removeEventListener } from "./mutators.js";
-import { ROOT, buildVirtualDomFromRoute, getNodeByPath, createRealNode } from "./utils.js";
+import { routeToVDom, getNodeFromPath, createActualNode } from "./utils.js";
 
 export default function patchDOM(router) {
-  const parent = ROOT;
+  const parent = document.getElementById("root");;
 
-  // Current DOM converted into a virtual structure
-  const oldTree = extractElement(ROOT);
-  // New virtual DOM generated from the active route
-  const newTree = buildVirtualDomFromRoute(router);
-
-  const diffs = diffDOM(oldTree, newTree);
+  const prevTree = parseElement(parent);
+  const nextTree = routeToVDom(router);
+  const diffs = diffDOM(prevTree, nextTree);
 
   diffs.forEach((diff) => {
-    // Find the targeted DOM node using the diff path
-    const target = getNodeByPath(parent, diff.path);
+    const target = getNodeFromPath(parent, diff.path);
 
     switch (diff.type) {
-      // Update text content
+      // TEXT UPDATE
       case "TEXT":
-        if (target) {
-          target.textContent = diff.newValue;
-        }
+        if (target)
+          target.textContent = diff.nextValue;
         break;
 
-      // Add or update an attribute
+      // ATTRIBUTE ADD OR UPDATE
       case "ATTRIBUTE":
-        if (target) {
-          setDomAttribute(target, diff.attribute, diff.newValue);
-        }
+        if (target)
+          setDomAttribute(target, diff.attribute, diff.nextValue);
         break;
 
-      // Remove an attribute
+      // ATTRIBUTE REMOVE
       case "REMOVE_ATTRIBUTE":
-        if (target) {
+        if (target)
           removeDomAttribute(target, diff.attribute);
-        }
         break;
 
-      // Add or update an event listener
+      // EVENT ADD OR UPDATE
       case "EVENT":
-        if (target) {
-          setEventListener(target, diff.eventType, diff.newValue);
-        }
+        if (target)
+          setEventListener(target, diff.eventType, diff.nextValue);
         break;
 
-      // Remove an event listener
+      // EVENT REMOVE
       case "REMOVE_EVENT":
-        if (target) {
+        if (target)
           removeEventListener(target, diff.eventType);
-        }
         break;
 
-      // Replace an entire DOM node
+      // CHILD REPLACE
       case "REPLACE":
         if (target && target.parentNode) {
-          const newElement = createRealNode(diff.newValue);
+          const newElement = createActualNode(diff.nextValue);
           target.parentNode.replaceChild(newElement, target);
         }
         break;
 
-      // Add a new child node
+      // CHILD ADD
       case "ADD": {
-        // Extract the parent path and the target index from the child path
         const match = diff.path.match(/^(.*)\.children\[(\d+)\]$/);
         if (!match) break;
 
         const [, parentPath, indexStr] = match;
         const index = Number(indexStr);
-        const parentNode = getNodeByPath(parent, parentPath);
+        const parentNode = getNodeFromPath(parent, parentPath);
 
         if (parentNode) {
           // Insert before whatever currently sits at this index, so the
@@ -77,17 +67,15 @@ export default function patchDOM(router) {
           // the end. If nothing is there yet, insertBefore(node, null)
           // behaves exactly like appendChild.
           const referenceNode = parentNode.childNodes[index] || null;
-          parentNode.insertBefore(createRealNode(diff.newValue), referenceNode);
+          parentNode.insertBefore(createActualNode(diff.nextValue), referenceNode);
         }
-
         break;
       }
 
-      // Remove a DOM node
+      // CILD REMOVE
       case "REMOVE":
-        if (target && target.parentNode) {
+        if (target && target.parentNode)
           target.parentNode.removeChild(target);
-        }
         break;
     }
   });

@@ -2,43 +2,28 @@ export default function Router() {
   return {
     routes: {},
 
-    // Register a route
-    addRoute({ path, handler, fakeHandler }) {
+    addRoute({ path, handler, component }) {
       this.routes[path] = {
         main: handler,
-        fake: fakeHandler || null,
+        fake: component || null,
       };
     },
-
-    // set route({ path, handler, fakeHandler }) {
-    //   this.routes[path] = {
-    //     main: handler,
-    //     fake: fakeHandler || null,
-    //   };
-    // },
 
     init() { // router is changed to 'this'
       const renderRoute = () => { // need to be an arrow function, so it uses 'this' from the outer scope !
         const currentPath = location.hash.slice(1) || "/";
-        const matchedRoute = this.routes[currentPath];
+        const matched = this.routes[currentPath];
     
-        if (matchedRoute) {
-          matchedRoute.main();
+        if (matched) {
+          matched.main();
         } else {
-          // Fallback route: "*"
+          // fallback route: "*"
           const notFoundRoute = this.routes["*"];
-          
-          console.log(notFoundRoute)
-          if (notFoundRoute) {
-            notFoundRoute.main();
-          }
+          if (notFoundRoute) notFoundRoute.main();
         }
       }
     
-      // Initial route render
       renderRoute();
-    
-      // Listen for route changes
       window.addEventListener("hashchange", renderRoute);
     },
     
