@@ -11,6 +11,11 @@ export function parseElement(domEl) {
         attributes[attr.name] = attr.value;
     }
 
+    // key's hidden property
+    if (domEl.__mfKey !== undefined) {
+        attributes["data-key"] = domEl.__mfKey;
+    }
+
     const children = [];
     for (const child of domEl.childNodes) {
         children.push(parseElement(child));

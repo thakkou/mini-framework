@@ -31,6 +31,11 @@ export function createActualNode(vnode) {
 
     const element = document.createElement(vnode.tagName);
 
+    // key's hidden property to avoid random behavior when deleting element !
+    if (vnode.attributes && vnode.attributes["data-key"] !== undefined) {
+        element.__mfKey = vnode.attributes["data-key"];
+    }
+
     // attributes and special events
     for (const [key, value] of Object.entries(vnode.attributes || {})) {
         (key.startsWith("on") && typeof value === "function") ?
