@@ -2,19 +2,21 @@ export default function Router() {
   return {
     routes: {},
 
-    addRoute({ path, handler, component }) {
+    addRoute({ path, handler, component, guard }) {
       this.routes[path] = {
         main: handler,
         fake: component || null,
+        guard: guard || null,
       };
     },
 
-    init() { // router is changed to 'this'
-      const renderRoute = () => { // need to be an arrow function, so it uses 'this' from the outer scope !
+    async init() { // router is changed to 'this'
+      const renderRoute = async () => { // need to be an arrow function, so it uses 'this' from the outer scope !
         const currentPath = location.hash.slice(1) || "/";
         const matched = this.routes[currentPath];
     
         if (matched) {
+          if (await matched.guard()) return;
           matched.main();
         } else {
           // fallback route: "*"
@@ -23,12 +25,16 @@ export default function Router() {
         }
       }
     
-      renderRoute();
+      await renderRoute();
       window.addEventListener("hashchange", renderRoute);
     },
     
     navigate(path) {
-      location.hash = path;
+      if (location.hash !== path) {
+        location.href = "/#" + path;
+        return true;
+      }
+      return false;
     }
   };
 }
