@@ -36,10 +36,14 @@ export function createElement(tagName, attributes = {}, events = {}, ...children
         attributes,
         events,
         // .flat() only flattens one level by default.
-        children: children.flat().map(child => {
-            return (typeof child === "string" || typeof child === "number") ?
-                { tagName: "text", content: String(child) } : child;
-        })
+        children: children
+            .flat()
+            .filter(child => child != null && child !== false)
+            .map(child => 
+                typeof child === "string" || typeof child === "number"
+                ? { tagName: "text", content: String(child) }
+                : child
+            )
     };
 }
 

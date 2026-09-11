@@ -3,12 +3,26 @@ import { parseElement } from "./element.js";
 import { setDomAttribute, setEventListener, removeDomAttribute, removeEventListener } from "./mutators.js";
 import { routeToVDom, getNodeFromPath, createActualNode } from "./utils.js";
 
-export default function patchDOM(router) {
-  const parent = document.getElementById("root");;
+function getChildPath(root, target) {
+  const path = [];
+  let current = target;
+  while (current && current !== root) {
+    const parent = current.parentElement;
+    if (!parent) return null;
+    path.unshift([...parent.children].indexOf(current));
+    current = parent;
+  }
+  return current === root ? "root" + path.map(i => `.children[${i}]`).join('') : null;
+}
 
-  const prevTree = parseElement(parent);
-  const nextTree = routeToVDom(router);
-  const diffs = diffDOM(prevTree, nextTree);
+export default function patchDOM(router, prev = null, next = null) {
+  const parent = document.getElementById("root");
+
+  const prevTree = parseElement(prev || parent);
+  const nextTree = next || routeToVDom(router);
+  const diffs = prev ?
+    diffDOM(prevTree, nextTree, getChildPath(parent, prev)) :
+    diffDOM(prevTree, nextTree);
 
   diffs.forEach((diff) => {
     const target = getNodeFromPath(parent, diff.path);
@@ -72,7 +86,7 @@ export default function patchDOM(router) {
         break;
       }
 
-      // CILD REMOVE
+      // CHILD REMOVE
       case "REMOVE":
         if (target && target.parentNode)
           target.parentNode.removeChild(target);

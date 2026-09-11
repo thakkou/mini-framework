@@ -126,10 +126,36 @@ export default function diffDOM(prevNode, nextNode, path = "root") {
 
   if (!isKeyed) {
     // fallback to the plain positional diff.
-    const max = Math.max(oldChildren.length, newChildren.length);
-    for (let i = 0; i < max; i++) {
-      diffs.push(...diffDOM(oldChildren[i], newChildren[i], `${path}.children[${i}]`));
+    const sharedLength = Math.min(oldChildren.length, newChildren.length);
+
+    for (let i = 0; i < sharedLength; i++) {
+      diffs.push(...diffDOM(
+        oldChildren[i],
+        newChildren[i],
+        `${path}.children[${i}]`
+      ));
     }
+
+    for (let i = oldChildren.length - 1; i >= newChildren.length; i--) {
+      diffs.push(...diffDOM(
+        oldChildren[i],
+        undefined,
+        `${path}.children[${i}]`
+      ));
+    }
+
+    for (let i = sharedLength; i < newChildren.length; i++) {
+      diffs.push(...diffDOM(
+        undefined,
+        newChildren[i],
+        `${path}.children[${i}]`
+      ));
+    }
+
+    // const max = Math.max(oldChildren.length, newChildren.length);
+    // for (let i = 0; i < max; i++) {
+    //   diffs.push(...diffDOM(oldChildren[i], newChildren[i], `${path}.children[${i}]`));
+    // }
     return diffs;
   }
 
